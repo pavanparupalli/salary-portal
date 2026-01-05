@@ -135,7 +135,8 @@ function updateStatement() {
 select.addEventListener("change", updateStatement);
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
-  const emp = salaryData[select.value];
+  const empIdx = select.value;
+  const emp = sortedSalaryData[empIdx];
   const monthInfo = getSelectedMonthYear();
   if (!emp || !monthInfo) return;
   const statement = document.getElementById("statement");
