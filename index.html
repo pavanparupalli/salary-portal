@@ -76,6 +76,11 @@ const yearSelect = document.getElementById("yearSelect");
 
 // Populate year select with a range (2026 to current year + 1)
 const currentYear = new Date().getFullYear();
+// Add default option
+const defaultYearOpt = document.createElement("option");
+defaultYearOpt.value = "";
+defaultYearOpt.textContent = "-- Select Year --";
+yearSelect.appendChild(defaultYearOpt);
 for (let y = currentYear + 1; y >= 2026; y--) {
   const opt = document.createElement("option");
   opt.value = y;
@@ -93,44 +98,21 @@ function getSelectedMonthYear() {
 
 
 
-function getSalaryArrayForSelectedMonthYear() {
-  const monthInfo = getSelectedMonthYear();
-  if (!monthInfo) return [];
-  const key = `${monthInfo.monthName.slice(0,3)}-${monthInfo.year}`;
-  return Array.isArray(salaryData[key]) ? salaryData[key] : [];
-}
 
-function populateEmployeeDropdown() {
-  // Clear previous options except the first
-  while (select.options.length > 1) select.remove(1);
-  const arr = getSalaryArrayForSelectedMonthYear();
-  // Sort alphabetically
-  arr.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach((emp, idx) => {
-    const opt = document.createElement("option");
-    opt.value = idx;
-    opt.textContent = emp.name;
-    select.appendChild(opt);
-  });
-}
-
-monthSelect.addEventListener("change", () => {
-  populateEmployeeDropdown();
-  updateStatement();
+// Sort employees alphabetically by name for Jan-2026
+const sortedSalaryData = (salaryData["Jan-2026"] || []).slice().sort((a, b) => a.name.localeCompare(b.name));
+sortedSalaryData.forEach((emp, idx) => {
+  const opt = document.createElement("option");
+  opt.value = idx;
+  opt.textContent = emp.name;
+  select.appendChild(opt);
 });
-yearSelect.addEventListener("change", () => {
-  populateEmployeeDropdown();
-  updateStatement();
-});
-
-// Initial population (in case default month/year is set)
-populateEmployeeDropdown();
 
 
 
 function updateStatement() {
-  const arr = getSalaryArrayForSelectedMonthYear();
   const empIdx = select.value;
-  const emp = arr[empIdx];
+  const emp = sortedSalaryData[empIdx];
   const statement = document.getElementById("statement");
   const downloadBtn = document.getElementById("downloadBtn");
   const monthInfo = getSelectedMonthYear();
