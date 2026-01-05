@@ -92,21 +92,45 @@ function getSelectedMonthYear() {
 }
 
 
-// Sort employees alphabetically by name
-const sortedSalaryData = salaryData.map((emp, idx) => ({...emp, _originalIndex: idx}))
-  .sort((a, b) => a.name.localeCompare(b.name));
 
-sortedSalaryData.forEach((emp, index) => {
-  const opt = document.createElement("option");
-  opt.value = emp._originalIndex;
-  opt.textContent = emp.name;
-  select.appendChild(opt);
+function getSalaryArrayForSelectedMonthYear() {
+  const monthInfo = getSelectedMonthYear();
+  if (!monthInfo) return [];
+  const key = `${monthInfo.monthName.slice(0,3)}-${monthInfo.year}`;
+  return Array.isArray(salaryData[key]) ? salaryData[key] : [];
+}
+
+function populateEmployeeDropdown() {
+  // Clear previous options except the first
+  while (select.options.length > 1) select.remove(1);
+  const arr = getSalaryArrayForSelectedMonthYear();
+  // Sort alphabetically
+  arr.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach((emp, idx) => {
+    const opt = document.createElement("option");
+    opt.value = idx;
+    opt.textContent = emp.name;
+    select.appendChild(opt);
+  });
+}
+
+monthSelect.addEventListener("change", () => {
+  populateEmployeeDropdown();
+  updateStatement();
 });
+yearSelect.addEventListener("change", () => {
+  populateEmployeeDropdown();
+  updateStatement();
+});
+
+// Initial population (in case default month/year is set)
+populateEmployeeDropdown();
 
 
 
 function updateStatement() {
-  const emp = salaryData[select.value];
+  const arr = getSalaryArrayForSelectedMonthYear();
+  const empIdx = select.value;
+  const emp = arr[empIdx];
   const statement = document.getElementById("statement");
   const downloadBtn = document.getElementById("downloadBtn");
   const monthInfo = getSelectedMonthYear();
@@ -125,9 +149,8 @@ function updateStatement() {
   downloadBtn.style.display = "inline-block";
 }
 
+
 select.addEventListener("change", updateStatement);
-monthSelect.addEventListener("change", updateStatement);
-yearSelect.addEventListener("change", updateStatement);
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const emp = salaryData[select.value];
