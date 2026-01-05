@@ -27,21 +27,37 @@
     </select>
   </div>
   <div style="flex-shrink:0;">
-    <label for="monthSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px;">Select Month</label>
+    <label for="monthSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px;">Month (From)</label>
     <select id="monthSelect">
-      <option value="">-- Select Month --</option>
-      <option value="01">January</option>
-      <option value="02">February</option>
-      <option value="03">March</option>
-      <option value="04">April</option>
-      <option value="05">May</option>
-      <option value="06">June</option>
-      <option value="07">July</option>
-      <option value="08">August</option>
-      <option value="09">September</option>
-      <option value="10">October</option>
-      <option value="11">November</option>
-      <option value="12">December</option>
+      <option value="Jan-2026">January</option>
+      <option value="Feb-2026">February</option>
+      <option value="Mar-2026">March</option>
+      <option value="Apr-2026">April</option>
+      <option value="May-2026">May</option>
+      <option value="Jun-2026">June</option>
+      <option value="Jul-2026">July</option>
+      <option value="Aug-2026">August</option>
+      <option value="Sep-2026">September</option>
+      <option value="Oct-2026">October</option>
+      <option value="Nov-2026">November</option>
+      <option value="Dec-2026">December</option>
+    </select>
+  </div>
+  <div style="flex-shrink:0;">
+    <label for="monthToSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px;">Month (To)</label>
+    <select id="monthToSelect">
+      <option value="Jan-2026">January</option>
+      <option value="Feb-2026">February</option>
+      <option value="Mar-2026">March</option>
+      <option value="Apr-2026">April</option>
+      <option value="May-2026">May</option>
+      <option value="Jun-2026">June</option>
+      <option value="Jul-2026">July</option>
+      <option value="Aug-2026">August</option>
+      <option value="Sep-2026">September</option>
+      <option value="Oct-2026">October</option>
+      <option value="Nov-2026">November</option>
+      <option value="Dec-2026">December</option>
     </select>
   </div>
   <div style="flex-shrink:0;">
@@ -57,13 +73,18 @@
 <div class="statement" id="statement">
   <div style="text-align:center; margin-bottom:10px;">
     <img src="top page logo.png" alt="Company Logo" style="max-width:100px; max-height:100px;" />
+    <div style="margin-top:8px; font-size:13px; line-height:1.3; color:#222;">
+      <strong>SREEJAS HOME FOODS</strong><br>
+      PLOT NO B/43, JOURNALIST COLONY, JUBILEE HILLS, HYDERABAD, TELANGANA, 500055<br>
+      GSTIN: 36ADNPV0871C1ZD
+    </div>
   </div>
   <h4 id="statementTitle">Salary Statement – November 2025</h4>
   <hr>
 
   <div class="row"><div class="label">Employee Name:</div><div id="empName"></div></div>
   <div class="row"><div class="label">Gross Salary:</div><div id="gross"></div></div>
-  <div class="row"><div class="label">Working Days:</div><div id="days"></div></div>
+  <div class="row"><div class="label">Working Days:</div><div id="paidDays"></div></div>
   <div class="row"><div class="label">Basic Salary:</div><div id="basic"></div></div>
 </div>
 
@@ -89,44 +110,125 @@ for (let y = currentYear + 1; y >= 2026; y--) {
 }
 
 function getSelectedMonthYear() {
-  const month = monthSelect.value;
-  const year = yearSelect.value;
-  if (!month || !year) return null;
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const selectedMonth = monthSelect.value;
+  return Array.isArray(salaryData[selectedMonth]) ? salaryData[selectedMonth] : [];
   return { month, year, monthName: monthNames[parseInt(month, 10) - 1] };
 }
 
 
 
+  const arr = salaryData[monthSelect.value] || [];
 
-// Sort employees alphabetically by name for Jan-2026
-const sortedSalaryData = (salaryData["Jan-2026"] || []).slice().sort((a, b) => a.name.localeCompare(b.name));
-sortedSalaryData.forEach((emp, idx) => {
-  const opt = document.createElement("option");
-  opt.value = idx;
-  opt.textContent = emp.name;
-  select.appendChild(opt);
+function getSalaryArrayForSelectedMonthYear() {
+  const monthInfo = getSelectedMonthYear();
+  if (!monthInfo) return [];
+  const key = `${monthInfo.monthName.slice(0,3)}-${monthInfo.year}`;
+  return Array.isArray(salaryData[key]) ? salaryData[key] : [];
+}
+
+function populateEmployeeDropdown() {
+  // Clear previous options except the first
+  select.innerHTML = '<option value="">-- Select Name --</option>';
+  const selectedMonth = monthSelect.value;
+  if (!selectedMonth || !salaryData[selectedMonth]) return;
+  let employees = salaryData[selectedMonth];
+  if (selectedMonth === "Jan-2026") {
+    employees = [...employees].sort((a, b) => a.name.localeCompare(b.name));
+    window.sortedJanEmployees = employees;
+    window.sortedFebEmployees = null;
+  } else if (selectedMonth === "Feb-2026") {
+    employees = [...employees].sort((a, b) => a.name.localeCompare(b.name));
+    window.sortedFebEmployees = employees;
+    window.sortedJanEmployees = null;
+  } else {
+    window.sortedJanEmployees = null;
+    window.sortedFebEmployees = null;
+  }
+  employees.forEach((emp, idx) => {
+    const option = document.createElement("option");
+    option.value = idx;
+    option.textContent = emp.name;
+    select.appendChild(option);
+  });
+}
+
+monthSelect.addEventListener("change", () => {
+  populateEmployeeDropdown();
+  updateStatement();
 });
+yearSelect.addEventListener("change", () => {
+  populateEmployeeDropdown();
+  updateStatement();
+});
+  statementTitle.innerText = `Salary Statement – ${monthSelect.options[monthSelect.selectedIndex].text}`;
+// Initial population (in case default month/year is set)
+populateEmployeeDropdown();
 
 
 
 function updateStatement() {
+  const selectedMonthFrom = monthSelect.value;
+  const selectedMonthTo = document.getElementById("monthToSelect").value;
   const empIdx = select.value;
-  const emp = sortedSalaryData[empIdx];
+  let empFrom, empTo;
+  // Get employee for From month
+  if (selectedMonthFrom === "Jan-2026" && window.sortedJanEmployees) {
+    empFrom = window.sortedJanEmployees[empIdx];
+  } else if (selectedMonthFrom === "Feb-2026" && window.sortedFebEmployees) {
+    empFrom = window.sortedFebEmployees[empIdx];
+  } else {
+    empFrom = salaryData[selectedMonthFrom] && salaryData[selectedMonthFrom][empIdx];
+  }
+  // Get employee for To month
+  if (selectedMonthTo === "Jan-2026" && window.sortedJanEmployees) {
+    empTo = window.sortedJanEmployees[empIdx];
+  } else if (selectedMonthTo === "Feb-2026" && window.sortedFebEmployees) {
+    empTo = window.sortedFebEmployees[empIdx];
+  } else {
+    empTo = salaryData[selectedMonthTo] && salaryData[selectedMonthTo][empIdx];
+  }
   const statement = document.getElementById("statement");
   const downloadBtn = document.getElementById("downloadBtn");
-  const monthInfo = getSelectedMonthYear();
-  // Only show if 2026 January is selected
-  if (!emp || !monthInfo || monthInfo.year !== "2026" || monthInfo.month !== "01") {
+  if (!empFrom && !empTo) {
     statement.style.display = "none";
     downloadBtn.style.display = "none";
     return;
   }
-  document.getElementById("empName").innerText = emp.name;
-  document.getElementById("gross").innerText = "₹ " + emp.gross;
-  document.getElementById("days").innerText = emp.paidDays;
-  document.getElementById("basic").innerText = "₹ " + emp.basic;
-  statementTitle.innerText = `Salary Statement – ${monthInfo.monthName} ${monthInfo.year}`;
+  let gross = 0, paidDays = 0, basic = 0, name = "";
+  if (selectedMonthFrom === selectedMonthTo) {
+    if (empFrom) {
+      gross = Number(empFrom.gross);
+      paidDays = Number(empFrom.paidDays);
+      basic = Number(empFrom.basic);
+      name = empFrom.name;
+    }
+    document.getElementById("empName").innerText = name;
+    document.getElementById("gross").innerText = "₹ " + gross;
+    document.getElementById("paidDays").innerText = paidDays;
+    document.getElementById("basic").innerText = "₹ " + basic;
+    statementTitle.innerText = `Salary Statement – ${monthSelect.options[monthSelect.selectedIndex].text}`;
+    statement.style.display = "block";
+    downloadBtn.style.display = "inline-block";
+    return;
+  }
+  // If both months selected and employee exists in both, sum values
+  if (empFrom) {
+    gross += Number(empFrom.gross);
+    paidDays += Number(empFrom.paidDays);
+    basic += Number(empFrom.basic);
+    name = empFrom.name;
+  }
+  if (empTo) {
+    gross += Number(empTo.gross);
+    paidDays += Number(empTo.paidDays);
+    basic += Number(empTo.basic);
+    if (!name) name = empTo.name;
+  }
+  document.getElementById("empName").innerText = name;
+  document.getElementById("gross").innerText = "₹ " + gross;
+  document.getElementById("paidDays").innerText = paidDays;
+  document.getElementById("basic").innerText = "₹ " + basic;
+  statementTitle.innerText = `Salary Statement – ${monthSelect.options[monthSelect.selectedIndex].text} to ${document.getElementById("monthToSelect").options[document.getElementById("monthToSelect").selectedIndex].text}`;
   statement.style.display = "block";
   downloadBtn.style.display = "inline-block";
 }
@@ -135,15 +237,63 @@ function updateStatement() {
 select.addEventListener("change", updateStatement);
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
+  const selectedMonthFrom = monthSelect.value;
+  const selectedMonthTo = document.getElementById("monthToSelect").value;
   const empIdx = select.value;
-  const emp = sortedSalaryData[empIdx];
-  const monthInfo = getSelectedMonthYear();
-  if (!emp || !monthInfo) return;
+  let empFrom, empTo;
+  if (selectedMonthFrom === "Jan-2026" && window.sortedJanEmployees) {
+    empFrom = window.sortedJanEmployees[empIdx];
+  } else if (selectedMonthFrom === "Feb-2026" && window.sortedFebEmployees) {
+    empFrom = window.sortedFebEmployees[empIdx];
+  } else {
+    empFrom = salaryData[selectedMonthFrom] && salaryData[selectedMonthFrom][empIdx];
+  }
+  if (selectedMonthTo === "Jan-2026" && window.sortedJanEmployees) {
+    empTo = window.sortedJanEmployees[empIdx];
+  } else if (selectedMonthTo === "Feb-2026" && window.sortedFebEmployees) {
+    empTo = window.sortedFebEmployees[empIdx];
+  } else {
+    empTo = salaryData[selectedMonthTo] && salaryData[selectedMonthTo][empIdx];
+  }
+  if (!empFrom && !empTo) return;
+  let gross = 0, paidDays = 0, basic = 0, name = "";
+  if (selectedMonthFrom === selectedMonthTo) {
+    if (empFrom) {
+      gross = Number(empFrom.gross);
+      paidDays = Number(empFrom.paidDays);
+      basic = Number(empFrom.basic);
+      name = empFrom.name;
+    }
+  } else {
+    if (empFrom) {
+      gross += Number(empFrom.gross);
+      paidDays += Number(empFrom.paidDays);
+      basic += Number(empFrom.basic);
+      name = empFrom.name;
+    }
+    if (empTo) {
+      gross += Number(empTo.gross);
+      paidDays += Number(empTo.paidDays);
+      basic += Number(empTo.basic);
+      if (!name) name = empTo.name;
+    }
+  }
+  // Update statement fields before download
+  document.getElementById("empName").innerText = name;
+  document.getElementById("gross").innerText = "₹ " + gross;
+  document.getElementById("paidDays").innerText = paidDays;
+  document.getElementById("basic").innerText = "₹ " + basic;
   const statement = document.getElementById("statement");
+  let filename;
+  if (selectedMonthFrom === selectedMonthTo) {
+    filename = `${name}_Salary_${monthSelect.options[monthSelect.selectedIndex].text}.pdf`;
+  } else {
+    filename = `${name}_Salary_${monthSelect.options[monthSelect.selectedIndex].text}_to_${document.getElementById("monthToSelect").options[document.getElementById("monthToSelect").selectedIndex].text}.pdf`;
+  }
   html2pdf()
     .set({
       margin: 0,
-      filename: `${emp.name}_Salary_${monthInfo.monthName}_${monthInfo.year}.pdf`,
+      filename: filename,
       jsPDF: { unit: "in", format: [3, 4.25] }
     })
     .from(statement)
