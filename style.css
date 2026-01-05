@@ -1,0 +1,117 @@
+/* ===== Global Page Style ===== */
+body {
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #fff7ed 55%, #fde68a 100%);
+  padding: 30px;
+  margin: 0;
+  color: #4a2c2a;
+}
+
+/* Headings */
+h3 {
+  text-align: center;
+  color: #9a3412;
+  font-size: 1.4em;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+/* Dropdown */
+select {
+  display: block;
+  margin: 0 auto 18px auto;
+  padding: 10px 14px;
+  font-size: 15px;
+  border-radius: 10px;
+  border: 1.5px solid #f59e0b;
+  background: #fffaf0;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+}
+
+/* Download Button */
+#downloadBtn {
+  display: block;
+  margin: 0 auto 22px auto;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 26px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(217,119,6,0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#downloadBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(217,119,6,0.45);
+}
+
+/* ===== Salary Statement Card ===== */
+.statement {
+  width: 3in;
+  height: 4.25in;
+  background: #fffdf8;
+  padding: 14px 12px;
+  box-sizing: border-box;
+  display: none;
+  margin: 0 auto;
+  border-radius: 18px;
+  border: 2px solid #facc15;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+/* Logo */
+.statement img {
+  max-width: 60px;
+  max-height: 60px;
+  margin-bottom: 6px;
+}
+
+/* Statement Title */
+.statement h4 {
+  text-align: center;
+  margin: 6px 0 10px 0;
+  color: #7c2d12;
+  font-size: 1.05em;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+}
+
+/* Divider */
+.statement hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #f59e0b, transparent);
+  margin: 8px 0 10px 0;
+}
+
+/* Rows */
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 0.95em;
+}
+
+/* Labels */
+.label {
+  font-weight: 600;
+  color: #b45309;
+}
+
+/* Values */
+.row div:last-child {
+  color: #3f3f46;
+  font-weight: 500;
+}
+
+/* Mobile Friendly */
+@media (max-width: 600px) {
+  .statement {
+    width: 92vw;
+    height: auto;
+  }
+}

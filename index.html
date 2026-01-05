@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+</head>
+<meta charset="UTF-8">
+<title>Salary Statement Download</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="salary-data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+</head>
+
+
+<body>
+
+<!-- Company Logo at the top of the page -->
+<div style="text-align:center; margin-bottom:20px;">
+  <img src="473663083_916190074053648_2654389452373302734_n.jpg" alt="Company Logo" style="max-width:150px; max-height:150px;" />
+</div>
+
+
+<div style="display: flex; align-items: center; gap: 18px; margin-bottom: 18px; justify-content: center;">
+  <div style="flex-shrink:0; margin-right: 8px;">
+    <label for="employeeSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px;">Select Employee</label>
+    <select id="employeeSelect">
+      <option value="">-- Select Name --</option>
+    </select>
+  </div>
+  <div style="flex-shrink:0;">
+    <label for="monthSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px;">Select Month</label>
+    <select id="monthSelect">
+      <option value="">-- Select Month --</option>
+      <option value="01">January</option>
+      <option value="02">February</option>
+      <option value="03">March</option>
+      <option value="04">April</option>
+      <option value="05">May</option>
+      <option value="06">June</option>
+      <option value="07">July</option>
+      <option value="08">August</option>
+      <option value="09">September</option>
+      <option value="10">October</option>
+      <option value="11">November</option>
+      <option value="12">December</option>
+    </select>
+  </div>
+  <div style="flex-shrink:0;">
+    <label for="yearSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px;">Select Year</label>
+    <select id="yearSelect"></select>
+  </div>
+</div>
+
+<div id="downloadBtnContainer" style="text-align:center;">
+  <button id="downloadBtn" style="display:none; margin: 15px 0;">Download Statement</button>
+</div>
+
+<div class="statement" id="statement">
+  <div style="text-align:center; margin-bottom:10px;">
+    <img src="473663083_916190074053648_2654389452373302734_n.jpg" alt="Company Logo" style="max-width:100px; max-height:100px;" />
+  </div>
+  <h4 id="statementTitle">Salary Statement – November 2025</h4>
+  <hr>
+
+  <div class="row"><div class="label">Employee Name:</div><div id="empName"></div></div>
+  <div class="row"><div class="label">Gross Salary:</div><div id="gross"></div></div>
+  <div class="row"><div class="label">Working Days:</div><div id="days"></div></div>
+  <div class="row"><div class="label">Basic Salary:</div><div id="basic"></div></div>
+</div>
+
+<script>
+
+const select = document.getElementById("employeeSelect");
+const monthSelect = document.getElementById("monthSelect");
+const statementTitle = document.getElementById("statementTitle");
+const yearSelect = document.getElementById("yearSelect");
+
+// Populate year select with a range (2026 to current year + 1)
+const currentYear = new Date().getFullYear();
+for (let y = currentYear + 1; y >= 2026; y--) {
+  const opt = document.createElement("option");
+  opt.value = y;
+  opt.textContent = y;
+  yearSelect.appendChild(opt);
+}
+
+function getSelectedMonthYear() {
+  const month = monthSelect.value;
+  const year = yearSelect.value;
+  if (!month || !year) return null;
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return { month, year, monthName: monthNames[parseInt(month, 10) - 1] };
+}
+
+
+// Sort employees alphabetically by name
+const sortedSalaryData = salaryData.map((emp, idx) => ({...emp, _originalIndex: idx}))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+sortedSalaryData.forEach((emp, index) => {
+  const opt = document.createElement("option");
+  opt.value = emp._originalIndex;
+  opt.textContent = emp.name;
+  select.appendChild(opt);
+});
+
+
+
+function updateStatement() {
+  const emp = salaryData[select.value];
+  const statement = document.getElementById("statement");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const monthInfo = getSelectedMonthYear();
+  // Only show if 2026 January is selected
+  if (!emp || !monthInfo || monthInfo.year !== "2026" || monthInfo.month !== "01") {
+    statement.style.display = "none";
+    downloadBtn.style.display = "none";
+    return;
+  }
+  document.getElementById("empName").innerText = emp.name;
+  document.getElementById("gross").innerText = "₹ " + emp.gross;
+  document.getElementById("days").innerText = emp.paidDays;
+  document.getElementById("basic").innerText = "₹ " + emp.basic;
+  statementTitle.innerText = `Salary Statement – ${monthInfo.monthName} ${monthInfo.year}`;
+  statement.style.display = "block";
+  downloadBtn.style.display = "inline-block";
+}
+
+select.addEventListener("change", updateStatement);
+monthSelect.addEventListener("change", updateStatement);
+yearSelect.addEventListener("change", updateStatement);
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const emp = salaryData[select.value];
+  const monthInfo = getSelectedMonthYear();
+  if (!emp || !monthInfo) return;
+  const statement = document.getElementById("statement");
+  html2pdf()
+    .set({
+      margin: 0,
+      filename: `${emp.name}_Salary_${monthInfo.monthName}_${monthInfo.year}.pdf`,
+      jsPDF: { unit: "in", format: [3, 4.25] }
+    })
+    .from(statement)
+    .save();
+});
+</script>
+
+</body>
+</html>
