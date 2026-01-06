@@ -32,6 +32,7 @@ function getMonthsInRange(from, to) {
 }
 
 function findEmployee(month, sno) {
+  // Find employee by sno
   return salaryData[month]?.find(e => e.sno === sno) || null;
 }
 
