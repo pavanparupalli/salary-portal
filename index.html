@@ -86,6 +86,13 @@
   <div class="row"><div class="label">Gross Salary:</div><div id="gross"></div></div>
   <div class="row"><div class="label">Working Days:</div><div id="paidDays"></div></div>
   <div class="row"><div class="label">Basic Salary:</div><div id="basic"></div></div>
+  <div class="row"><div class="label">Other Earnings:</div><div id="otherEarnings"></div></div>
+  <div class="row"><div class="label">PF:</div><div id="pf"></div></div>
+  <div class="row"><div class="label">ESI:</div><div id="esi"></div></div>
+  <div class="row"><div class="label">Advance:</div><div id="adv"></div></div>
+  <hr style="margin: 8px 0; border-top: 2px solid #f59e0b;">
+  <div class="row"><div class="label">Net Salary:</div><div id="netSalary"></div></div>
+  <hr style="margin: 8px 0; border-top: 2px solid #f59e0b;">
 </div>
 
 <script>
@@ -206,6 +213,11 @@ function updateStatement() {
     document.getElementById("gross").innerText = "₹ " + gross;
     document.getElementById("paidDays").innerText = paidDays;
     document.getElementById("basic").innerText = "₹ " + basic;
+    document.getElementById("otherEarnings").innerText = empFrom && empFrom.otherEarnings !== undefined ? "₹ " + empFrom.otherEarnings : "-";
+    document.getElementById("pf").innerText = empFrom && empFrom.pf !== undefined ? "(₹ " + empFrom.pf + ")" : "-";
+    document.getElementById("esi").innerText = empFrom && empFrom.esi !== undefined ? "(₹ " + empFrom.esi + ")" : "-";
+    document.getElementById("adv").innerText = empFrom && empFrom.adv !== undefined ? "(₹ " + empFrom.adv + ")" : "-";
+    document.getElementById("netSalary").innerText = empFrom && (empFrom["Net Salary"] !== undefined ? "₹ " + empFrom["Net Salary"] : (empFrom.NetSalary !== undefined ? "₹ " + empFrom.NetSalary : (empFrom.netSalary !== undefined ? "₹ " + empFrom.netSalary : "-")));
     statementTitle.innerText = `Salary Statement – ${monthSelect.options[monthSelect.selectedIndex].text}`;
     statement.style.display = "block";
     downloadBtn.style.display = "inline-block";
@@ -228,6 +240,11 @@ function updateStatement() {
   document.getElementById("gross").innerText = "₹ " + gross;
   document.getElementById("paidDays").innerText = paidDays;
   document.getElementById("basic").innerText = "₹ " + basic;
+  document.getElementById("otherEarnings").innerText = empFrom && empFrom.otherEarnings !== undefined ? "₹ " + empFrom.otherEarnings : "-";
+  document.getElementById("pf").innerText = empFrom && empFrom.pf !== undefined ? "(₹ " + empFrom.pf + ")" : "-";
+  document.getElementById("esi").innerText = empFrom && empFrom.esi !== undefined ? "(₹ " + empFrom.esi + ")" : "-";
+  document.getElementById("adv").innerText = empFrom && empFrom.adv !== undefined ? "(₹ " + empFrom.adv + ")" : "-";
+  document.getElementById("netSalary").innerText = empFrom && (empFrom["Net Salary"] !== undefined ? "₹ " + empFrom["Net Salary"] : (empFrom.NetSalary !== undefined ? "₹ " + empFrom.NetSalary : (empFrom.netSalary !== undefined ? "₹ " + empFrom.netSalary : "-")));
   statementTitle.innerText = `Salary Statement – ${monthSelect.options[monthSelect.selectedIndex].text} to ${document.getElementById("monthToSelect").options[document.getElementById("monthToSelect").selectedIndex].text}`;
   statement.style.display = "block";
   downloadBtn.style.display = "inline-block";
@@ -294,7 +311,8 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
     .set({
       margin: 0,
       filename: filename,
-      jsPDF: { unit: "in", format: [3, 4.25] }
+      jsPDF: { unit: "in", format: [3, 6] }, // Match .statement height
+      pagebreak: { mode: ['avoid'] }
     })
     .from(statement)
     .save();

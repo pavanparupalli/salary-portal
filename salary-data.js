@@ -234,6 +234,20 @@ const salaryData = {
     { sno: 104, name: "PARUPALLI NAVEENA", gross: 50500, paidDays: 28, basic: 50500 },
     { sno: 105, name: "PARUPALLI RAVI", gross: 62000, paidDays: 28, basic: 62000 },
     { sno: 106, name: "VASIREDDY RAVI KIRAN", gross: 66500, paidDays: 28, basic: 66500 }
+  ],
+  "Mar-2026": [
+      {
+  sno: 9,
+  name: "BARUN NAG",
+  gross: 33850,
+  paidDays: 5,
+  basic: 5642,
+  otherEarnings: 0,
+  pf: 677,
+  esi: 0,
+  adv: 0,
+  netSalary: 4965
+    }
   ]
 };
 // test commit

@@ -52,7 +52,7 @@ select {
 /* ===== Salary Statement Card ===== */
 .statement {
   width: 3in;
-  height: 4.25in;
+  height: 6in;
   background: #fffdf8;
   padding: 14px 12px;
   box-sizing: border-box;
