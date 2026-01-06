@@ -249,43 +249,27 @@ select.addEventListener("change", updateStatement);
 document.getElementById("downloadBtn").addEventListener("click", () => {
   const selectedMonthFrom = monthSelect.value;
   const selectedMonthTo = document.getElementById("monthToSelect").value;
-  const empIdx = select.value;
-  let empFrom, empTo;
-  if (selectedMonthFrom === "Jan-2026" && window.sortedJanEmployees) {
-    empFrom = window.sortedJanEmployees[empIdx];
-  } else if (selectedMonthFrom === "Feb-2026" && window.sortedFebEmployees) {
-    empFrom = window.sortedFebEmployees[empIdx];
-  } else {
-    empFrom = salaryData[selectedMonthFrom] && salaryData[selectedMonthFrom][empIdx];
-  }
-  if (selectedMonthTo === "Jan-2026" && window.sortedJanEmployees) {
-    empTo = window.sortedJanEmployees[empIdx];
-  } else if (selectedMonthTo === "Feb-2026" && window.sortedFebEmployees) {
-    empTo = window.sortedFebEmployees[empIdx];
-  } else {
-    empTo = salaryData[selectedMonthTo] && salaryData[selectedMonthTo][empIdx];
-  }
-  if (!empFrom && !empTo) return;
-  let gross = 0, paidDays = 0, basic = 0, name = "";
-  if (selectedMonthFrom === selectedMonthTo) {
-    if (empFrom) {
-      gross = Number(empFrom.gross);
-      paidDays = Number(empFrom.paidDays);
-      basic = Number(empFrom.basic);
-      name = empFrom.name;
-    }
-  } else {
-    if (empFrom) {
-      gross += Number(empFrom.gross);
-      paidDays += Number(empFrom.paidDays);
-      basic += Number(empFrom.basic);
-      name = empFrom.name;
-    }
-    if (empTo) {
-      gross += Number(empTo.gross);
-      paidDays += Number(empTo.paidDays);
-      basic += Number(empTo.basic);
-      if (!name) name = empTo.name;
+  const empSno = Number(select.value);
+  const MONTH_ORDER = [
+    "Jan-2026", "Feb-2026", "Mar-2026", "Apr-2026", "May-2026", "Jun-2026",
+    "Jul-2026", "Aug-2026", "Sep-2026", "Oct-2026", "Nov-2026", "Dec-2026"
+  ];
+  const startIdx = MONTH_ORDER.indexOf(selectedMonthFrom);
+  const endIdx = MONTH_ORDER.indexOf(selectedMonthTo);
+  let gross = 0, paidDays = 0, basic = 0, otherEarnings = 0, pf = 0, esi = 0, adv = 0, netSalary = 0, name = "";
+  for (let i = startIdx; i <= endIdx; i++) {
+    const month = MONTH_ORDER[i];
+    const emp = (salaryData[month] || []).find(e => e.sno === empSno);
+    if (emp) {
+      name = emp.name;
+      gross += Number(emp.gross || 0);
+      paidDays += Number(emp.paidDays || 0);
+      basic += Number(emp.basic || 0);
+      otherEarnings += Number(emp.otherEarnings || 0);
+      pf += Number(emp.pf || 0);
+      esi += Number(emp.esi || 0);
+      adv += Number(emp.adv || 0);
+      netSalary += Number(emp.netSalary || 0);
     }
   }
   // Update statement fields before download
@@ -293,6 +277,11 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
   document.getElementById("gross").innerText = "₹ " + gross;
   document.getElementById("paidDays").innerText = paidDays;
   document.getElementById("basic").innerText = "₹ " + basic;
+  document.getElementById("otherEarnings").innerText = "₹ " + otherEarnings;
+  document.getElementById("pf").innerText = "₹ " + pf;
+  document.getElementById("esi").innerText = "₹ " + esi;
+  document.getElementById("adv").innerText = "₹ " + adv;
+  document.getElementById("netSalary").innerText = "₹ " + netSalary;
   const statement = document.getElementById("statement");
   let filename;
   if (selectedMonthFrom === selectedMonthTo) {
