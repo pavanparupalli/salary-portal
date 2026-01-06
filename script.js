@@ -1,3 +1,11 @@
+// ===============================
+// FIXED MONTH ORDER (CRITICAL)
+// ===============================
+const MONTH_ORDER = ["Jan-2026", "Feb-2026", "Mar-2026"];
+
+// ===============================
+// ELEMENTS
+// ===============================
 const monthFromSelect = document.getElementById("monthSelect");
 const monthToSelect   = document.getElementById("monthToSelect");
 const employeeSelect  = document.getElementById("employeeSelect");
@@ -6,79 +14,102 @@ const empNameEl = document.getElementById("empName");
 const grossEl   = document.getElementById("gross");
 const daysEl    = document.getElementById("paidDays");
 const basicEl   = document.getElementById("basic");
+const pfEl      = document.getElementById("pf");
+const esiEl     = document.getElementById("esi");
+const advEl     = document.getElementById("adv");
+const netEl     = document.getElementById("netSalary");
 const titleEl   = document.getElementById("statementTitle");
 const statement = document.getElementById("statement");
 
-// Find employee by S.No (SAFE)
-function findEmployee(month, sno) {
-  return salaryData[month]?.find(e => e.sno == sno);
+// ===============================
+// HELPERS
+// ===============================
+function getMonthsInRange(from, to) {
+  const start = MONTH_ORDER.indexOf(from);
+  const end   = MONTH_ORDER.indexOf(to);
+  if (start === -1 || end === -1 || start > end) return [];
+  return MONTH_ORDER.slice(start, end + 1);
 }
 
-// Populate employees when FROM month changes
+function findEmployee(month, sno) {
+  return salaryData[month]?.find(e => e.sno === sno) || null;
+}
+
+// ===============================
+// POPULATE EMPLOYEES
+// ===============================
 function populateEmployees() {
   employeeSelect.innerHTML = `<option value="">Select Employee</option>`;
-
   const fromMonth = monthFromSelect.value;
-  if (!fromMonth || !salaryData[fromMonth]) return;
+  if (!salaryData[fromMonth]) return;
 
-  const employees = [...salaryData[fromMonth]].sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
-
-  employees.forEach(emp => {
-    const opt = document.createElement("option");
-    opt.value = emp.sno;      // 🔑 USE S.NO
-    opt.textContent = emp.name;
-    employeeSelect.appendChild(opt);
-  });
+  salaryData[fromMonth]
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach(emp => {
+      const opt = document.createElement("option");
+      opt.value = emp.sno;
+      opt.textContent = emp.name;
+      employeeSelect.appendChild(opt);
+    });
 }
 
-// Generate statement (single or consolidated)
+// ===============================
+// GENERATE STATEMENT (CORRECT)
+// ===============================
 function generateStatement() {
-  const fromMonth = monthFromSelect.value;
-  const toMonth   = monthToSelect.value;
-  const sno       = employeeSelect.value;
+  const from = monthFromSelect.value;
+  const to   = monthToSelect.value;
+  const sno  = Number(employeeSelect.value);
 
-  if (!fromMonth || !toMonth || !sno) {
+  if (!from || !to || !sno) {
     statement.style.display = "none";
     return;
   }
 
-  const months = Object.keys(salaryData);
-  const start = months.indexOf(fromMonth);
-  const end   = months.indexOf(toMonth);
-
-  if (start === -1 || end === -1 || start > end) {
+  const months = getMonthsInRange(from, to);
+  if (!months.length) {
     alert("Invalid month range");
     return;
   }
 
-  let gross = 0, days = 0, basic = 0, name = "";
+  let gross = 0, days = 0, basic = 0, pf = 0, esi = 0, adv = 0, net = 0;
+  let name = "";
 
-  for (let i = start; i <= end; i++) {
-    const emp = findEmployee(months[i], sno);
-    if (!emp) continue;
+  months.forEach(month => {
+    const emp = findEmployee(month, sno);
+    if (!emp) return;
 
-    name = emp.name;
-    gross += Number(emp.gross);
-    days  += Number(emp.paidDays);
-    basic += Number(emp.basic);
-  }
+    name  = emp.name;
+    gross += emp.gross || 0;
+    days  += emp.paidDays || 0;
+    basic += emp.basic || 0;
+    pf    += emp.pf || 0;
+    esi   += emp.esi || 0;
+    adv   += emp.adv || 0;
+    net   += emp.netSalary || 0;
+  });
 
   empNameEl.textContent = name;
-  grossEl.textContent   = "₹ " + gross.toLocaleString();
+  grossEl.textContent   = "₹ " + gross;
   daysEl.textContent    = days;
-  basicEl.textContent   = "₹ " + basic.toLocaleString();
+  basicEl.textContent   = "₹ " + basic;
+  pfEl.textContent      = "₹ " + pf;
+  esiEl.textContent     = "₹ " + esi;
+  advEl.textContent     = "₹ " + adv;
+  netEl.textContent     = "₹ " + net;
 
   titleEl.textContent =
-    fromMonth === toMonth
-      ? `Salary Statement – ${fromMonth}`
-      : `Consolidated Salary Statement – ${fromMonth} to ${toMonth}`;
+    from === to
+      ? `Salary Statement – ${from}`
+      : `Consolidated Salary Statement – ${from} to ${to}`;
 
   statement.style.display = "block";
 }
 
+// ===============================
 // EVENTS
+// ===============================
 monthFromSelect.addEventListener("change", () => {
   populateEmployees();
   generateStatement();
