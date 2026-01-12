@@ -10,7 +10,7 @@ const salaryData = {
       pf: 1800,
       esi: 0,
       professionalTax: 1200,
-      adv: 0,
+      adv: 50000,
       netSalary: 0,
     },
     {
