@@ -29,7 +29,7 @@
     </select>
   </div>
   <div style="flex-shrink:0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    <label for="monthSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px; text-align: center; width: 100%;">Month (From)</label>
+    <label for="monthSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px; text-align: center; width: 100%;">Month</label>
     <select id="monthSelect">
       <option value="Jan-2026">January</option>
       <option value="Feb-2026">February</option>
@@ -45,23 +45,7 @@
       <option value="Dec-2026">December</option>
     </select>
   </div>
-  <div style="flex-shrink:0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    <label for="monthToSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px; text-align: center; width: 100%;">Month (To)</label>
-    <select id="monthToSelect">
-      <option value="Jan-2026">January</option>
-      <option value="Feb-2026">February</option>
-      <option value="Mar-2026">March</option>
-      <option value="Apr-2026">April</option>
-      <option value="May-2026">May</option>
-      <option value="Jun-2026">June</option>
-      <option value="Jul-2026">July</option>
-      <option value="Aug-2026">August</option>
-      <option value="Sep-2026">September</option>
-      <option value="Oct-2026">October</option>
-      <option value="Nov-2026">November</option>
-      <option value="Dec-2026">December</option>
-    </select>
-  </div>
+  
   <div style="flex-shrink:0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
     <label for="yearSelect" style="font-weight: 500; color: #2d3a4b; margin-right: 4px; text-align: center; width: 100%;">Select Year</label>
     <select id="yearSelect"></select>
@@ -92,6 +76,7 @@
   <div class="row"><div class="label"><span style="text-decoration:underline;">Less:</span></div><div></div></div>
   <div class="row"><div class="label">PF:</div><div id="pf"></div></div>
   <div class="row"><div class="label">ESI:</div><div id="esi"></div></div>
+    <div class="row"><div class="label">Professional Tax:</div><div id="professionalTax"></div></div>
   <div class="row"><div class="label">Advance:</div><div id="adv"></div></div>
   <hr style="margin: 8px 0; border-top: 2px solid #f59e0b;">
   <div class="row"><div class="label">Net Salary:</div><div id="netSalary"></div></div>
@@ -177,70 +162,34 @@ populateEmployeeDropdown();
 
 
 function updateStatement() {
-  const selectedMonthFrom = monthSelect.value;
-  const selectedMonthTo = document.getElementById("monthToSelect").value;
+  const selectedMonth = monthSelect.value;
   const empSno = Number(select.value);
-  let empFrom, empTo;
-  // Get employee for From month
-  if (selectedMonthFrom === "Jan-2026" && window.sortedJanEmployees) {
-    empFrom = window.sortedJanEmployees.find(e => e.sno === empSno);
-  } else if (selectedMonthFrom === "Feb-2026" && window.sortedFebEmployees) {
-    empFrom = window.sortedFebEmployees.find(e => e.sno === empSno);
-  } else {
-    empFrom = (salaryData[selectedMonthFrom] || []).find(e => e.sno === empSno);
-  }
-  // Get employee for To month
-  if (selectedMonthTo === "Jan-2026" && window.sortedJanEmployees) {
-    empTo = window.sortedJanEmployees.find(e => e.sno === empSno);
-  } else if (selectedMonthTo === "Feb-2026" && window.sortedFebEmployees) {
-    empTo = window.sortedFebEmployees.find(e => e.sno === empSno);
-  } else {
-    empTo = (salaryData[selectedMonthTo] || []).find(e => e.sno === empSno);
-  }
+  let emp = (salaryData[selectedMonth] || []).find(e => e.sno === empSno);
   const statement = document.getElementById("statement");
   const downloadBtn = document.getElementById("downloadBtn");
-  if (!empFrom && !empTo) {
+  if (!emp) {
     statement.style.display = "none";
     downloadBtn.style.display = "none";
     return;
   }
-  // Loop through all months in range and sum values for the selected employee
-  const MONTH_ORDER = [
-    "Jan-2026", "Feb-2026", "Mar-2026", "Apr-2026", "May-2026", "Jun-2026",
-    "Jul-2026", "Aug-2026", "Sep-2026", "Oct-2026", "Nov-2026", "Dec-2026"
-  ];
-  const startIdx = MONTH_ORDER.indexOf(selectedMonthFrom);
-  const endIdx = MONTH_ORDER.indexOf(selectedMonthTo);
-  let gross = 0, paidDays = 0, basic = 0, otherEarnings = 0, pf = 0, esi = 0, adv = 0, netSalary = 0, name = "";
-  for (let i = startIdx; i <= endIdx; i++) {
-    const month = MONTH_ORDER[i];
-    const emp = (salaryData[month] || []).find(e => e.sno === empSno);
-    if (emp) {
-      name = emp.name;
-      gross += Number(emp.gross || 0);
-      paidDays += Number(emp.paidDays || 0);
-      basic += Number(emp.basic || 0);
-      otherEarnings += Number(emp.otherEarnings || 0);
-      pf += Number(emp.pf || 0);
-      esi += Number(emp.esi || 0);
-      adv += Number(emp.adv || 0);
-      netSalary += Number(emp.netSalary || 0);
-    }
-  }
-  document.getElementById("empName").innerText = name;
-  document.getElementById("gross").innerText = "₹ " + gross;
-  document.getElementById("paidDays").innerText = paidDays;
-  document.getElementById("basic").innerText = "₹ " + basic;
-  document.getElementById("otherEarnings").innerText = "₹ " + otherEarnings;
-  document.getElementById("pf").innerText = "₹ " + pf;
-  document.getElementById("esi").innerText = "₹ " + esi;
-  document.getElementById("adv").innerText = "₹ " + adv;
+  document.getElementById("empName").innerText = emp.name;
+  document.getElementById("gross").innerText = "₹ " + (emp.gross || 0);
+  document.getElementById("paidDays").innerText = emp.paidDays || 0;
+  document.getElementById("basic").innerText = "₹ " + (emp.basic || 0);
+  document.getElementById("otherEarnings").innerText = "₹ " + (emp.otherEarnings || 0);
+  document.getElementById("pf").innerText = "₹ " + (emp.pf || 0);
+  document.getElementById("esi").innerText = "₹ " + (emp.esi || 0);
+  document.getElementById("professionalTax").innerText = "₹ " + (emp.professionalTax || 0);
+  document.getElementById("adv").innerText = "₹ " + (emp.adv || 0);
+  const netSalary =
+    (emp.gross || 0) +
+    (emp.otherEarnings || 0) -
+    (emp.pf || 0) -
+    (emp.esi || 0) -
+    (emp.professionalTax || 0) -
+    (emp.adv || 0);
   document.getElementById("netSalary").innerText = "₹ " + netSalary;
-  if (selectedMonthFrom === selectedMonthTo) {
-    statementTitle.innerText = `Salary Statement – ${monthSelect.options[monthSelect.selectedIndex].text}`;
-  } else {
-    statementTitle.innerText = `Salary Statement – ${monthSelect.options[monthSelect.selectedIndex].text} to ${document.getElementById("monthToSelect").options[document.getElementById("monthToSelect").selectedIndex].text}`;
-  }
+  statementTitle.innerText = `Salary Statement – ${monthSelect.options[monthSelect.selectedIndex].text}`;
   statement.style.display = "block";
   downloadBtn.style.display = "inline-block";
 }
@@ -249,48 +198,29 @@ function updateStatement() {
 select.addEventListener("change", updateStatement);
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
-  const selectedMonthFrom = monthSelect.value;
-  const selectedMonthTo = document.getElementById("monthToSelect").value;
+  const selectedMonth = monthSelect.value;
   const empSno = Number(select.value);
-  const MONTH_ORDER = [
-    "Jan-2026", "Feb-2026", "Mar-2026", "Apr-2026", "May-2026", "Jun-2026",
-    "Jul-2026", "Aug-2026", "Sep-2026", "Oct-2026", "Nov-2026", "Dec-2026"
-  ];
-  const startIdx = MONTH_ORDER.indexOf(selectedMonthFrom);
-  const endIdx = MONTH_ORDER.indexOf(selectedMonthTo);
-  let gross = 0, paidDays = 0, basic = 0, otherEarnings = 0, pf = 0, esi = 0, adv = 0, netSalary = 0, name = "";
-  for (let i = startIdx; i <= endIdx; i++) {
-    const month = MONTH_ORDER[i];
-    const emp = (salaryData[month] || []).find(e => e.sno === empSno);
-    if (emp) {
-      name = emp.name;
-      gross += Number(emp.gross || 0);
-      paidDays += Number(emp.paidDays || 0);
-      basic += Number(emp.basic || 0);
-      otherEarnings += Number(emp.otherEarnings || 0);
-      pf += Number(emp.pf || 0);
-      esi += Number(emp.esi || 0);
-      adv += Number(emp.adv || 0);
-      netSalary += Number(emp.netSalary || 0);
-    }
-  }
+  const emp = (salaryData[selectedMonth] || []).find(e => e.sno === empSno);
   // Update statement fields before download
-  document.getElementById("empName").innerText = name;
-  document.getElementById("gross").innerText = "₹ " + gross;
-  document.getElementById("paidDays").innerText = paidDays;
-  document.getElementById("basic").innerText = "₹ " + basic;
-  document.getElementById("otherEarnings").innerText = "₹ " + otherEarnings;
-  document.getElementById("pf").innerText = "₹ " + pf;
-  document.getElementById("esi").innerText = "₹ " + esi;
-  document.getElementById("adv").innerText = "₹ " + adv;
+  document.getElementById("empName").innerText = emp?.name || "";
+  document.getElementById("gross").innerText = "₹ " + (emp?.gross || 0);
+  document.getElementById("paidDays").innerText = emp?.paidDays || 0;
+  document.getElementById("basic").innerText = "₹ " + (emp?.basic || 0);
+  document.getElementById("otherEarnings").innerText = "₹ " + (emp?.otherEarnings || 0);
+  document.getElementById("pf").innerText = "₹ " + (emp?.pf || 0);
+  document.getElementById("esi").innerText = "₹ " + (emp?.esi || 0);
+  document.getElementById("professionalTax").innerText = "₹ " + (emp?.professionalTax || 0);
+  document.getElementById("adv").innerText = "₹ " + (emp?.adv || 0);
+  const netSalary =
+    (emp?.gross || 0) +
+    (emp?.otherEarnings || 0) -
+    (emp?.pf || 0) -
+    (emp?.esi || 0) -
+    (emp?.professionalTax || 0) -
+    (emp?.adv || 0);
   document.getElementById("netSalary").innerText = "₹ " + netSalary;
   const statement = document.getElementById("statement");
-  let filename;
-  if (selectedMonthFrom === selectedMonthTo) {
-    filename = `${name}_Salary_${monthSelect.options[monthSelect.selectedIndex].text}.pdf`;
-  } else {
-    filename = `${name}_Salary_${monthSelect.options[monthSelect.selectedIndex].text}_to_${document.getElementById("monthToSelect").options[document.getElementById("monthToSelect").selectedIndex].text}.pdf`;
-  }
+  let filename = `${emp?.name || "Employee"}_Salary_${monthSelect.options[monthSelect.selectedIndex].text}.pdf`;
   html2pdf()
     .set({
       margin: 0,

@@ -9,8 +9,9 @@ const salaryData = {
       otherEarnings: 0,
       pf: 1800,
       esi: 0,
+      professionalTax: 1200,
       adv: 0,
-      netSalary: 31200
+      netSalary: 0,
     },
     {
       sno: 2,
@@ -21,8 +22,9 @@ const salaryData = {
       otherEarnings: 0,
       pf: 677,
       esi: 0,
-      adv: 0,
-      netSalary: 4965
+        professionalTax: 0,
+        adv: 0,
+        netSalary: 4965
     }
     
   ],
@@ -36,8 +38,9 @@ const salaryData = {
       otherEarnings: 0,
       pf: 1800,
       esi: 0,
-      adv: 0,
-      netSalary: 31200
+        professionalTax: 100,
+        adv: 0,
+        netSalary: 31200
     },
     {
       sno: 2,
@@ -48,8 +51,9 @@ const salaryData = {
       otherEarnings: 0,
       pf: 677,
       esi: 0,
-      adv: 0,
-      netSalary: 4965
+        professionalTax: 0,
+        adv: 0,
+        netSalary: 4965
     }
     
 ],
@@ -63,8 +67,9 @@ const salaryData = {
       otherEarnings: 0,
       pf: 1800,
       esi: 0,
-      adv: 0,
-      netSalary: 31200
+        professionalTax: 500,
+        adv: 0,
+        netSalary: 31200
     },
     {
       sno: 2,
@@ -75,8 +80,9 @@ const salaryData = {
       otherEarnings: 0,
       pf: 677,
       esi: 0,
-      adv: 0,
-      netSalary: 4965
+        professionalTax: 0,
+        adv: 0,
+        netSalary: 4965
     }
 
   ]

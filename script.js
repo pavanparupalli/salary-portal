@@ -7,7 +7,7 @@ const MONTH_ORDER = ["Jan-2026", "Feb-2026", "Mar-2026"];
 // ELEMENTS
 // ===============================
 const monthFromSelect = document.getElementById("monthSelect");
-const monthToSelect   = document.getElementById("monthToSelect");
+const yearSelect = document.getElementById("yearSelect");
 const employeeSelect  = document.getElementById("employeeSelect");
 
 const empNameEl = document.getElementById("empName");
@@ -59,52 +59,36 @@ function populateEmployees() {
 // GENERATE STATEMENT (CORRECT)
 // ===============================
 function generateStatement() {
-  const from = monthFromSelect.value;
-  const to   = monthToSelect.value;
-  const sno  = Number(employeeSelect.value);
+  const month = monthFromSelect.value;
+  const sno = Number(employeeSelect.value);
 
-  if (!from || !to || !sno) {
+  if (!month || !sno) {
     statement.style.display = "none";
     return;
   }
 
-  const months = getMonthsInRange(from, to);
-  if (!months.length) {
-    alert("Invalid month range");
+  const empArr = salaryData[month];
+  if (!empArr) {
+    statement.style.display = "none";
+    return;
+  }
+  const emp = empArr.find(e => e.sno === sno);
+  if (!emp) {
+    statement.style.display = "none";
     return;
   }
 
-  let gross = 0, days = 0, basic = 0, pf = 0, esi = 0, adv = 0, net = 0;
-  let name = "";
+  empNameEl.textContent = emp.name;
+  grossEl.textContent   = "₹ " + (emp.gross || 0);
+  daysEl.textContent    = emp.paidDays || 0;
+  basicEl.textContent   = "₹ " + (emp.basic || 0);
+  pfEl.textContent      = "₹ " + (emp.pf || 0);
+  esiEl.textContent     = "₹ " + (emp.esi || 0);
+  document.getElementById("professionalTax").textContent = "₹ " + (emp.professionalTax || 0);
+  advEl.textContent     = "₹ " + (emp.adv || 0);
+  netEl.textContent     = "₹ " + (emp.netSalary || 0);
 
-  months.forEach(month => {
-    const emp = findEmployee(month, sno);
-    if (!emp) return;
-
-    name  = emp.name;
-    gross += emp.gross || 0;
-    days  += emp.paidDays || 0;
-    basic += emp.basic || 0;
-    pf    += emp.pf || 0;
-    esi   += emp.esi || 0;
-    adv   += emp.adv || 0;
-    net   += emp.netSalary || 0;
-  });
-
-  empNameEl.textContent = name;
-  grossEl.textContent   = "₹ " + gross;
-  daysEl.textContent    = days;
-  basicEl.textContent   = "₹ " + basic;
-  pfEl.textContent      = "₹ " + pf;
-  esiEl.textContent     = "₹ " + esi;
-  advEl.textContent     = "₹ " + adv;
-  netEl.textContent     = "₹ " + net;
-
-  titleEl.textContent =
-    from === to
-      ? `Salary Statement – ${from}`
-      : `Consolidated Salary Statement – ${from} to ${to}`;
-
+  titleEl.textContent = `Salary Statement – ${month}`;
   statement.style.display = "block";
 }
 
@@ -115,5 +99,5 @@ monthFromSelect.addEventListener("change", () => {
   populateEmployees();
   generateStatement();
 });
-monthToSelect.addEventListener("change", generateStatement);
 employeeSelect.addEventListener("change", generateStatement);
+yearSelect.addEventListener("change", generateStatement);
